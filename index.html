@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Mean Visualization</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: Arial;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+<div id="info">
+  <h3>Mean Visualization in 3D</h3>
+  <p>Blue bars: Data points<br>Red bar: Mean value</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x111111);
+
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 10, 20);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const light = new THREE.PointLight(0xffffff, 1);
+  light.position.set(10, 20, 10);
+  scene.add(light);
+
+  // Data values
+  const data = [4, 7, 3, 6, 10, 5, 8];
+  const mean = data.reduce((a, b) => a + b, 0) / data.length;
+
+  // Create data bars
+  data.forEach((value, i) => {
+    const geometry = new THREE.BoxGeometry(1, value, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x2196f3 });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.set(i * 2 - (data.length), value / 2, 0);
+    scene.add(cube);
+  });
+
+  // Create mean bar
+  const meanGeometry = new THREE.BoxGeometry(1, mean, 1);
+  const meanMaterial = new THREE.MeshStandardMaterial({ color: 0xff3b3b });
+  const meanBar = new THREE.Mesh(meanGeometry, meanMaterial);
+  meanBar.position.set(data.length, mean / 2, 0);
+  scene.add(meanBar);
+
+  // Floor
+  const floorGeo = new THREE.PlaneGeometry(50, 50);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x333333, side: THREE.DoubleSide });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = Math.PI / 2;
+  scene.add(floor);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+
+  animate();
+</script>
+</body>
+</html>
